@@ -5,9 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Input } from '../ui/Input';
-import { Button } from '../ui/Button';
-import { Checkbox } from '../ui/Checkbox';
-import { loginSchema, type LoginFormData } from '@/validations/loginSchema';
+import { Button } from '../ui/Button';import { loginSchema, type LoginFormData } from '@/validations/loginSchema';
 import { useLogin } from '@/hooks/useAuthQueries';
 
 export const LoginForm = () => {
@@ -53,15 +51,6 @@ export const LoginForm = () => {
         autoComplete="current-password"
       />
 
-      <div className="flex items-center justify-between">
-        <Checkbox label="Lembrar-me" />
-        <a
-          href="/recuperar-senha"
-          className="text-sm text-violet-600 hover:text-violet-700 transition-colors"
-        >
-          Esqueceu a senha?
-        </a>
-      </div>
 
       <Button type="submit" className="w-full" isLoading={isPending}>
         ENTRAR
