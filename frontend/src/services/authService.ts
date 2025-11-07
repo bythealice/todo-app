@@ -4,7 +4,6 @@ import Cookies from 'js-cookie';
 export interface LoginRequest {
   email: string;
   password: string;
-  rememberMe?: boolean;
 }
 
 export interface SignupRequest {
