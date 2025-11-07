@@ -3,24 +3,8 @@
 import { Card } from '@/components/ui/Card';
 import { WavePattern } from '@/components/ui/WavePattern';
 import { LoginForm } from '@/components/auth/LoginForm';
-import { useAuth } from '@/hooks/useAuth';
-import type { LoginFormData } from '@/validations/loginSchema';
 
 export default function LoginPage() {
-  const { login } = useAuth();
-
-  const handleLogin = async (data: LoginFormData) => {
-    try {
-      await login(data);
-      // TODO: Redirecionar para dashboard após login bem-sucedido
-      // router.push('/dashboard');
-      console.log('Login realizado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      // TODO: Mostrar mensagem de erro para o usuário
-    }
-  };
-
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
       <Card className="w-full max-w-5xl grid md:grid-cols-2 gap-0 relative">
@@ -34,7 +18,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <LoginForm onSubmit={handleLogin} />
+          <LoginForm />
         </div>
 
         <div className="relative bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 p-8 md:p-12 flex flex-col justify-center items-center text-white overflow-hidden">

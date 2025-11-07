@@ -6,12 +6,12 @@ const COOKIE_OPTIONS = {
 };
 
 export const saveAuthData = (accessToken: string, user: any) => {
-  Cookies.set('accessToken', accessToken, COOKIE_OPTIONS);
+  Cookies.set('token', accessToken, COOKIE_OPTIONS);
   Cookies.set('user', JSON.stringify(user), COOKIE_OPTIONS);
 };
 
 export const getAccessToken = (): string | undefined => {
-  return Cookies.get('accessToken');
+  return Cookies.get('token');
 };
 
 export const getUser = () => {
@@ -30,7 +30,7 @@ export const isAuthenticated = (): boolean => {
 };
 
 export const clearAuth = () => {
-  Cookies.remove('accessToken');
+  Cookies.remove('token');
   Cookies.remove('user');
 };
 

@@ -3,23 +3,8 @@
 import { Card } from '@/components/ui/Card';
 import { WavePattern } from '@/components/ui/WavePattern';
 import { RegisterForm } from '@/components/auth/RegisterForm';
-import { useRegister } from '@/hooks/useRegister';
-import type { RegisterFormData } from '@/validations/registerSchema';
 
 export default function RegisterPage() {
-  const { register } = useRegister();
-
-  const handleRegister = async (data: RegisterFormData) => {
-    try {
-      await register(data);
-      // TODO: Redirecionar para dashboard após registro bem-sucedido
-      // router.push('/dashboard');
-      console.log('Conta criada com sucesso!');
-    } catch (error) {
-      console.error('Erro ao criar conta:', error);
-      // TODO: Mostrar mensagem de erro para o usuário
-    }
-  };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
@@ -58,7 +43,7 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <RegisterForm onSubmit={handleRegister} />
+          <RegisterForm />
         </div>
       </Card>
     </div>

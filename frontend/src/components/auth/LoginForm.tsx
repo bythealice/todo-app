@@ -8,14 +8,11 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { Checkbox } from '../ui/Checkbox';
 import { loginSchema, type LoginFormData } from '@/validations/loginSchema';
+import { useLogin } from '@/hooks/useAuthQueries';
 
-interface LoginFormProps {
-  onSubmit: (data: LoginFormData) => Promise<void>;
-}
-
-export const LoginForm = ({ onSubmit }: LoginFormProps) => {
+export const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutate: login, isPending, isError, error } = useLogin();
 
   const {
     register,
@@ -25,13 +22,8 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
     resolver: zodResolver(loginSchema),
   });
 
-  const handleFormSubmit = async (data: LoginFormData) => {
-    setIsLoading(true);
-    try {
-      await onSubmit(data);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleFormSubmit = (data: LoginFormData) => {
+    login(data);
   };
 
   return (
@@ -71,9 +63,15 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
         </a>
       </div>
 
-      <Button type="submit" className="w-full" isLoading={isLoading}>
+      <Button type="submit" className="w-full" isLoading={isPending}>
         ENTRAR
       </Button>
+
+      {isError && (
+        <p className="text-center text-sm text-red-600 font-medium">
+          {error?.message || 'Erro ao fazer login'}
+        </p>
+      )}
 
       <p className="text-center text-sm text-gray-600">
         Não tem uma conta?{' '}
@@ -83,6 +81,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
         >
           Criar conta
         </a>
+
       </p>
     </form>
   );
