@@ -30,6 +30,11 @@ export const apiClient = {
         throw new Error(error.message || 'Erro ao processar requisição');
       }
 
+      // Se a resposta for 204 No Content ou não tiver conteúdo, retornar undefined
+      if (response.status === 204 || response.headers.get('content-length') === '0') {
+        return undefined as T;
+      }
+
       return response.json();
     } catch (error) {
       if (error instanceof TypeError) {

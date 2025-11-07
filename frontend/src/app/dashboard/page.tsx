@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { Plus, ListTodo, CheckCircle2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Sidebar } from '@/components/ui/Sidebar';
 import { WavePattern } from '@/components/ui/WavePattern';
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -16,12 +17,14 @@ import type { TaskFormData } from '@/validations/taskSchema';
 export default function DashboardPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
 
   const { data: tasks = [] } = useTasks();
   const { mutate: createTask, isPending: isCreating } = useCreateTask();
   const { mutate: updateTask, isPending: isUpdating } = useUpdateTask();
-  const { mutate: deleteTask } = useDeleteTask();
+  const { mutate: deleteTask, isPending: isDeleting } = useDeleteTask();
   const { mutate: toggleStatus } = useToggleTaskStatus();
 
   const handleCreateTask = (data: TaskFormData) => {
@@ -49,8 +52,18 @@ export default function DashboardPage() {
   };
 
   const handleDeleteTask = (id: string) => {
-    if (confirm('Tem certeza que deseja excluir esta tarefa?')) {
-      deleteTask(id);
+    setTaskToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (taskToDelete) {
+      deleteTask(taskToDelete, {
+        onSuccess: () => {
+          setIsDeleteModalOpen(false);
+          setTaskToDelete(null);
+        },
+      });
     }
   };
 
@@ -182,6 +195,20 @@ export default function DashboardPage() {
           />
         )}
       </Modal>
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setTaskToDelete(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title="Excluir Tarefa"
+        description="Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
