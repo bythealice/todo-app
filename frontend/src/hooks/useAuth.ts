@@ -8,33 +8,29 @@ export const useAuth = () => {
   const [user, setUser] = useState<LoginResponse['user'] | null>(null);
 
   const login = async (data: LoginFormData): Promise<LoginResponse> => {
-    try {
-      const response = await fetch('http://localhost:4000/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
+    const response = await fetch('http://localhost:4000/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
 
-      if (!response.ok) {
-        throw new Error('Falha na autenticação');
-      }
-
-      const result: LoginResponse = await response.json();
-
-      // Salvar token no localStorage
-      localStorage.setItem('accessToken', result.accessToken);
-      localStorage.setItem('user', JSON.stringify(result.user));
-
-      setIsAuthenticated(true);
-      setUser(result.user);
-
-      return result;
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      throw error;
+    if (!response.ok) {
+      const errorMessage = 'Falha na autenticação';
+      console.error(errorMessage);
+      throw new Error(errorMessage);
     }
+
+    const result: LoginResponse = await response.json();
+
+    localStorage.setItem('accessToken', result.accessToken);
+    localStorage.setItem('user', JSON.stringify(result.user));
+
+    setIsAuthenticated(true);
+    setUser(result.user);
+
+    return result;
   };
 
   const logout = () => {

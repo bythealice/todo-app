@@ -3,29 +3,29 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
-import { Checkbox } from '../ui/Checkbox';
-import { loginSchema, type LoginFormData } from '@/validations/loginSchema';
+import { registerSchema, type RegisterFormData } from '@/validations/registerSchema';
 
-interface LoginFormProps {
-  onSubmit: (data: LoginFormData) => Promise<void>;
+interface RegisterFormProps {
+  onSubmit: (data: RegisterFormData) => Promise<void>;
 }
 
-export const LoginForm = ({ onSubmit }: LoginFormProps) => {
+export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
   });
 
-  const handleFormSubmit = async (data: LoginFormData) => {
+  const handleFormSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
       await onSubmit(data);
@@ -35,7 +35,16 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+      <Input
+        {...register('name')}
+        type="text"
+        placeholder="Nome completo"
+        icon={<User size={20} />}
+        error={errors.name?.message}
+        autoComplete="name"
+      />
+
       <Input
         {...register('email')}
         type="email"
@@ -58,30 +67,36 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
           )
         }
         error={errors.password?.message}
-        autoComplete="current-password"
+        autoComplete="new-password"
       />
 
-      <div className="flex items-center justify-between">
-        <Checkbox label="Lembrar-me" />
-        <a
-          href="/recuperar-senha"
-          className="text-sm text-violet-600 hover:text-violet-700 transition-colors"
-        >
-          Esqueceu a senha?
-        </a>
-      </div>
+      <Input
+        {...register('confirmPassword')}
+        type={showConfirmPassword ? 'text' : 'password'}
+        placeholder="Confirme sua senha"
+        icon={<Lock size={20} />}
+        rightIcon={
+          showConfirmPassword ? (
+            <EyeOff size={20} onClick={() => setShowConfirmPassword(false)} />
+          ) : (
+            <Eye size={20} onClick={() => setShowConfirmPassword(true)} />
+          )
+        }
+        error={errors.confirmPassword?.message}
+        autoComplete="new-password"
+      />
 
       <Button type="submit" className="w-full" isLoading={isLoading}>
-        ENTRAR
+        CRIAR CONTA
       </Button>
 
       <p className="text-center text-sm text-gray-600">
-        Não tem uma conta?{' '}
+        Já tem uma conta?{' '}
         <a
-          href="/register"
+          href="/login"
           className="text-violet-600 hover:text-violet-700 font-semibold transition-colors"
         >
-          Criar conta
+          Fazer login
         </a>
       </p>
     </form>
