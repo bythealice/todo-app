@@ -2,6 +2,9 @@
 
 Aplicação web moderna de gerenciamento de tarefas com autenticação, desenvolvida com as melhores práticas e tecnologias atuais.
 
+<img width="1848" height="932" alt="image" src="https://github.com/user-attachments/assets/100a48af-1d35-4208-b259-cd0217fa09d3" />
+
+
 ## 📋 Índice
 
 - [Sobre o Projeto](#sobre-o-projeto)
