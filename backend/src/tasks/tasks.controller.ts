@@ -52,6 +52,15 @@ export class TasksController {
     return this.tasksService.toggleComplete(id, user.id);
   }
 
+  @Patch(':id')
+  partialUpdate(
+    @CurrentUser() user: any,
+    @Param('id') id: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ) {
+    return this.tasksService.update(id, user.id, updateTaskDto);
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@CurrentUser() user: any, @Param('id') id: string) {
