@@ -48,4 +48,3 @@ export class CreateTaskDto {
   @IsIn(['pending', 'in_progress', 'completed'])
   status?: string;
 }
-

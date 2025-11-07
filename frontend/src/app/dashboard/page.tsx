@@ -116,8 +116,6 @@ export default function DashboardPage() {
               icon={ListTodo}
               color="violet"
               chartData={chartDataTotal}
-              trend="up"
-              trendValue="+12% esta semana"
             />
             <StatCard
               title="Pendentes"
@@ -125,8 +123,6 @@ export default function DashboardPage() {
               icon={Clock}
               color="yellow"
               chartData={chartDataPending}
-              trend="down"
-              trendValue="-8% esta semana"
             />
             <StatCard
               title="Concluídas"
@@ -134,8 +130,6 @@ export default function DashboardPage() {
               icon={CheckCircle2}
               color="green"
               chartData={chartDataCompleted}
-              trend="up"
-              trendValue="+23% esta semana"
             />
           </div>
 
@@ -204,7 +198,7 @@ export default function DashboardPage() {
         }}
         onConfirm={handleConfirmDelete}
         title="Excluir Tarefa"
-        description="Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita."
+        message="Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita."
         confirmText="Excluir"
         cancelText="Cancelar"
         isLoading={isDeleting}

@@ -46,4 +46,3 @@ export class UpdateTaskDto {
   @IsIn(['pending', 'in_progress', 'completed'])
   status?: string;
 }
-
