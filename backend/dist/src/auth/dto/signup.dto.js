@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SignupDto = void 0;
 const class_validator_1 = require("class-validator");
+const swagger_1 = require("@nestjs/swagger");
 class SignupDto {
     email;
     name;
@@ -18,16 +19,29 @@ class SignupDto {
 }
 exports.SignupDto = SignupDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'User email address',
+        example: 'user@example.com',
+    }),
     (0, class_validator_1.IsEmail)({}, { message: 'Email inválido' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'Email é obrigatório' }),
     __metadata("design:type", String)
 ], SignupDto.prototype, "email", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'User full name',
+        example: 'John Doe',
+    }),
     (0, class_validator_1.IsString)({ message: 'Nome deve ser uma string' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'Nome é obrigatório' }),
     __metadata("design:type", String)
 ], SignupDto.prototype, "name", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({
+        description: 'User password (minimum 6 characters)',
+        example: 'password123',
+        minLength: 6,
+    }),
     (0, class_validator_1.IsString)({ message: 'Senha deve ser uma string' }),
     (0, class_validator_1.MinLength)(6, { message: 'Senha deve ter no mínimo 6 caracteres' }),
     (0, class_validator_1.IsNotEmpty)({ message: 'Senha é obrigatória' }),

@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const auth_service_1 = require("./auth.service");
 const signup_dto_1 = require("./dto/signup.dto");
 const login_dto_1 = require("./dto/login.dto");
@@ -38,6 +39,10 @@ exports.AuthController = AuthController;
 __decorate([
     (0, common_1.Post)('signup'),
     (0, common_1.HttpCode)(common_1.HttpStatus.CREATED),
+    (0, swagger_1.ApiOperation)({ summary: 'Register a new user' }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'User created successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 409, description: 'Email already in use' }),
+    (0, swagger_1.ApiResponse)({ status: 400, description: 'Bad request' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [signup_dto_1.SignupDto]),
@@ -46,6 +51,9 @@ __decorate([
 __decorate([
     (0, common_1.Post)('login'),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    (0, swagger_1.ApiOperation)({ summary: 'Login with email and password' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Login successful' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Invalid credentials' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
@@ -54,12 +62,17 @@ __decorate([
 __decorate([
     (0, common_1.Get)('me'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)('JWT-auth'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get current authenticated user profile' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User profile retrieved' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
     __param(0, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "getProfile", null);
 exports.AuthController = AuthController = __decorate([
+    (0, swagger_1.ApiTags)('auth'),
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])
 ], AuthController);
