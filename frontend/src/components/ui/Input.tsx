@@ -14,7 +14,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="w-full">
         <div className="relative">
           {icon && (
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-violet-600">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-violet-700 z-10">
               {icon}
             </div>
           )}
@@ -24,19 +24,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               w-full px-4 py-3 rounded-xl
               ${icon ? 'pl-12' : ''}
               ${rightIcon ? 'pr-12' : ''}
-              bg-white/60 backdrop-blur-sm
+              bg-white/80
               border-2 border-transparent
               focus:border-violet-400 focus:outline-none
               placeholder:text-gray-400
+              text-gray-800 font-medium
               transition-all duration-200
               shadow-sm hover:shadow-md
+              relative z-0
               ${error ? 'border-violet-400' : ''}
               ${className}
             `}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-violet-600 cursor-pointer">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-violet-700 cursor-pointer hover:text-violet-900 transition-colors z-10">
               {rightIcon}
             </div>
           )}
