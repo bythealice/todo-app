@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsIn } from 'class-validator';
 
 export class UpdateTaskDto {
   @IsOptional()
@@ -12,4 +12,14 @@ export class UpdateTaskDto {
   @IsOptional()
   @IsBoolean()
   completed?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['low', 'medium', 'high'])
+  priority?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsIn(['pending', 'in_progress', 'completed'])
+  status?: string;
 }
