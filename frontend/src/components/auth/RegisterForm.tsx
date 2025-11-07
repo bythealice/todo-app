@@ -7,15 +7,12 @@ import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { registerSchema, type RegisterFormData } from '@/validations/registerSchema';
+import { useSignup } from '@/hooks/useAuthQueries';
 
-interface RegisterFormProps {
-  onSubmit: (data: RegisterFormData) => Promise<void>;
-}
-
-export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
+export const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutate: signup, isPending, isError, error } = useSignup();
 
   const {
     register,
@@ -25,13 +22,9 @@ export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
     resolver: zodResolver(registerSchema),
   });
 
-  const handleFormSubmit = async (data: RegisterFormData) => {
-    setIsLoading(true);
-    try {
-      await onSubmit(data);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleFormSubmit = (data: RegisterFormData) => {
+    const { name, email, password } = data;
+    signup({ name, email, password });
   };
 
   return (
@@ -86,9 +79,15 @@ export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
         autoComplete="new-password"
       />
 
-      <Button type="submit" className="w-full" isLoading={isLoading}>
+      <Button type="submit" className="w-full" isLoading={isPending}>
         CRIAR CONTA
       </Button>
+
+      {isError && (
+        <p className="text-center text-sm text-red-600 font-medium">
+          {error?.message || 'Erro ao criar conta'}
+        </p>
+      )}
 
       <p className="text-center text-sm text-gray-600">
         Já tem uma conta?{' '}
