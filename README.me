@@ -1,40 +1,302 @@
-# 🧩 Fullstack ToDo App
+# 📝 Fullstack ToDo App
 
-Aplicação web de gerenciamento de tarefas desenvolvida como parte de um desafio técnico para a vaga de Desenvolvedor Fullstack.
+Aplicação web moderna de gerenciamento de tarefas com autenticação, desenvolvida com as melhores práticas e tecnologias atuais.
+
+## 📋 Índice
+
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Tecnologias](#tecnologias)
+- [Funcionalidades](#funcionalidades)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação e Configuração](#instalação-e-configuração)
+- [Como Executar](#como-executar)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [API Documentation](#api-documentation)
+- [Scripts Disponíveis](#scripts-disponíveis)
+
+## 🎯 Sobre o Projeto
+
+Sistema completo de gerenciamento de tarefas (ToDo List) com autenticação JWT, onde cada usuário pode criar, editar, visualizar e excluir suas próprias tarefas de forma segura e intuitiva.
+
+### Destaques:
+- 🔐 **Autenticação segura** com JWT
+- 🎨 **Interface moderna** e responsiva
+- ⚡ **Performance otimizada** com React Query
+- 📚 **API documentada** com Swagger
+- 🐳 **Docker ready** para fácil deployment
+- ✅ **Validação completa** de dados no frontend e backend
 
 ## 🚀 Tecnologias
 
-**Frontend**
-- Next.js (React + TypeScript)
-- React Query
-- Axios
-- Tailwind CSS
+### Frontend
+- **[Next.js 15](https://nextjs.org/)** - Framework React com SSR e App Router
+- **[TypeScript](https://www.typescriptlang.org/)** - Tipagem estática
+- **[React Query (TanStack Query)](https://tanstack.com/query/latest)** - Gerenciamento de estado assíncrono
+- **[Tailwind CSS](https://tailwindcss.com/)** - Estilização utility-first
+- **[Zod](https://zod.dev/)** - Validação de schemas
+- **[Lucide Icons](https://lucide.dev/)** - Ícones modernos
 
-**Backend**
-- NestJS (Node.js + TypeScript)
-- Prisma ORM
-- PostgreSQL
-- JWT Authentication
+### Backend
+- **[NestJS](https://nestjs.com/)** - Framework Node.js progressivo
+- **[TypeScript](https://www.typescriptlang.org/)** - Tipagem estática
+- **[Prisma ORM](https://www.prisma.io/)** - ORM moderno para TypeScript
+- **[PostgreSQL](https://www.postgresql.org/)** - Banco de dados relacional
+- **[JWT](https://jwt.io/)** - Autenticação stateless
+- **[Swagger](https://swagger.io/)** - Documentação automática da API
+- **[Class Validator](https://github.com/typestack/class-validator)** - Validação de DTOs
+- **[Bcrypt](https://www.npmjs.com/package/bcrypt)** - Hash de senhas
 
-## 🎯 Funcionalidades
+## ✨ Funcionalidades
 
-- Cadastro e login de usuários
-- CRUD de tarefas (criar, editar, listar e excluir)
-- Marcar tarefas como concluídas
-- Cada usuário vê apenas suas próprias tarefas
+### Autenticação
+- ✅ Cadastro de novos usuários
+- ✅ Login com email e senha
+- ✅ Proteção de rotas com JWT
+- ✅ Validação de dados com feedback em tempo real
 
-## ⚙️ Estrutura do projeto
+### Gerenciamento de Tarefas
+- ✅ Criar tarefas com título, descrição e prioridade
+- ✅ Editar tarefas existentes
+- ✅ Excluir tarefas com confirmação
+- ✅ Marcar tarefas como concluídas/pendentes
+- ✅ Filtrar tarefas (todas, pendentes, concluídas)
+- ✅ Ordenar por data ou prioridade
+- ✅ Buscar tarefas por título ou descrição
+- ✅ Dashboard com estatísticas
+
+### Interface
+- ✅ Design moderno e intuitivo
+- ✅ Animações suaves
+- ✅ Modais personalizadas
+- ✅ Feedback visual de ações
+- ✅ Página 404 personalizada
+- ✅ Loading states
+- ✅ Tratamento de erros
+
+## 📦 Pré-requisitos
+
+Antes de começar, você precisa ter instalado:
+
+- **Node.js** (versão 18 ou superior)
+- **npm** ou **yarn**
+- **PostgreSQL** (ou Docker para rodar com container)
+- **Git**
+
+## 🔧 Instalação e Configuração
+
+### 1. Clone o repositório
+
+```bash
+git clone <url-do-repositorio>
+cd todo-app
+```
+
+### 2. Configuração do Backend
+
+```bash
+cd backend
+npm install
+```
+
+Crie um arquivo `.env` na pasta `backend`:
+
+```env
+# Database
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/todo_db?schema=public"
+
+# JWT
+JWT_SECRET="seu_secret_key_super_seguro_aqui"
+JWT_EXPIRES_IN="7d"
+
+# Server
+PORT=4000
+```
+
+Execute as migrations do banco de dados:
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+### 3. Configuração do Frontend
+
+```bash
+cd ../frontend
+npm install
+```
+
+Crie um arquivo `.env.local` na pasta `frontend`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000/api
+```
+
+## 🚀 Como Executar
+
+### Opção 1: Executar manualmente
+
+#### Backend (Terminal 1)
+```bash
+cd backend
+npm run start:dev
+```
+
+O backend estará rodando em: `http://localhost:4000`
+- API: `http://localhost:4000/api`
+- Swagger Docs: `http://localhost:4000/api/docs`
+
+#### Frontend (Terminal 2)
+```bash
+cd frontend
+npm run dev
+```
+
+O frontend estará rodando em: `http://localhost:3000`
+
+### Opção 2: Executar com Docker
+
+#### Backend com Docker Compose
+
+```bash
+cd backend
+docker-compose up -d
+```
+
+Isso irá subir:
+- PostgreSQL na porta 5432
+- Backend na porta 4000
+
+#### Frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+## 📁 Estrutura do Projeto
 
 ```
-/todo-app
- ├── backend   → API NestJS + Prisma
- └── frontend  → Interface Next.js
+todo-app/
+├── backend/
+│   ├── prisma/
+│   │   ├── schema.prisma          # Schema do banco de dados
+│   │   └── migrations/            # Migrations do Prisma
+│   ├── src/
+│   │   ├── auth/                  # Módulo de autenticação
+│   │   │   ├── guards/            # Guards JWT
+│   │   │   ├── strategies/        # Estratégias Passport
+│   │   │   ├── decorators/        # Decorators customizados
+│   │   │   └── dto/               # DTOs de auth
+│   │   ├── tasks/                 # Módulo de tarefas
+│   │   │   ├── dto/               # DTOs de tasks
+│   │   │   ├── tasks.controller.ts
+│   │   │   ├── tasks.service.ts
+│   │   │   └── tasks.module.ts
+│   │   ├── prisma/                # Módulo Prisma
+│   │   │   ├── prisma.service.ts
+│   │   │   └── prisma.module.ts
+│   │   └── main.ts                # Entry point
+│   ├── .env                       # Variáveis de ambiente
+│   ├── docker-compose.yml         # Docker compose
+│   └── package.json
+│
+└── frontend/
+    ├── src/
+    │   ├── app/                   # App Router (Next.js 15)
+    │   │   ├── dashboard/         # Página principal
+    │   │   ├── login/             # Página de login
+    │   │   ├── register/          # Página de cadastro
+    │   │   └── not-found.tsx      # Página 404
+    │   ├── components/
+    │   │   ├── auth/              # Componentes de autenticação
+    │   │   ├── tasks/             # Componentes de tarefas
+    │   │   ├── dashboard/         # Componentes do dashboard
+    │   │   └── ui/                # Componentes UI reutilizáveis
+    │   ├── hooks/                 # Custom hooks
+    │   │   ├── useAuthQueries.ts
+    │   │   ├── useTaskQueries.ts
+    │   │   └── usePageTitle.ts
+    │   ├── services/              # Serviços de API
+    │   │   ├── api.ts
+    │   │   ├── authService.ts
+    │   │   └── taskService.ts
+    │   ├── validations/           # Schemas Zod
+    │   ├── utils/                 # Utilitários
+    │   ├── providers/             # Providers React Query
+    │   └── middleware.ts          # Middleware de autenticação
+    ├── .env.local                 # Variáveis de ambiente
+    └── package.json
 ```
 
-## 📦 Objetivo
+## 📚 API Documentation
 
-Avaliar habilidades em desenvolvimento fullstack, boas práticas com TypeScript e integração entre frontend e backend.
+A API está documentada com Swagger e pode ser acessada em:
+
+```
+http://localhost:4000/api/docs
+```
+
+### Principais Endpoints
+
+#### Autenticação
+- `POST /api/auth/signup` - Cadastrar usuário
+- `POST /api/auth/login` - Login
+
+#### Tarefas (Requer autenticação)
+- `GET /api/tasks` - Listar todas as tarefas do usuário
+- `GET /api/tasks/:id` - Buscar tarefa por ID
+- `POST /api/tasks` - Criar nova tarefa
+- `PATCH /api/tasks/:id` - Atualizar tarefa
+- `PATCH /api/tasks/:id/toggle` - Alternar status de conclusão
+- `DELETE /api/tasks/:id` - Excluir tarefa
+
+## 🛠️ Scripts Disponíveis
+
+### Backend
+
+```bash
+npm run start:dev      # Inicia em modo desenvolvimento
+npm run build          # Build para produção
+npm run start:prod     # Inicia em modo produção
+npm run prisma:studio  # Abre Prisma Studio
+npm run prisma:migrate # Cria nova migration
+```
+
+### Frontend
+
+```bash
+npm run dev            # Inicia em modo desenvolvimento
+npm run build          # Build para produção
+npm run start          # Inicia em modo produção
+npm run lint           # Executa linter
+```
+
+## 🔐 Segurança
+
+- ✅ Senhas hasheadas com bcrypt
+- ✅ Autenticação JWT
+- ✅ Proteção de rotas no frontend e backend
+- ✅ Validação de dados em ambas as pontas
+- ✅ CORS configurado
+- ✅ Sanitização de inputs
+
+## 🎨 Design
+
+O design da aplicação segue princípios modernos:
+- Paleta de cores violeta/roxo
+- Glassmorphism
+- Animações suaves
+- Feedback visual claro
+- Interface intuitiva
+
+
+## 👨‍💻 Autor
+
+Desenvolvido por Alice Ramalho
 
 ---
 
-🧠 *Em desenvolvimento...*
+⭐ **Dica**: Para testar rapidamente, você pode criar um usuário de teste e começar a criar suas tarefas!
+
+📧 **Suporte**: Em caso de dúvidas, consulte a documentação do Swagger ou abra uma issue.
