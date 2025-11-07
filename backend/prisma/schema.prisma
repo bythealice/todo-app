@@ -25,6 +25,8 @@ model Task {
   title       String
   description String?
   completed   Boolean  @default(false)
+  priority    String   @default("low")
+  status      String   @default("pending")
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
