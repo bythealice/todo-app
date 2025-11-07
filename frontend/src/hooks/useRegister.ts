@@ -1,14 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import Cookies from 'js-cookie';
 import type { RegisterFormData, RegisterResponse } from '@/validations/registerSchema';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 export const useRegister = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<RegisterResponse['user'] | null>(null);
 
   const register = async (data: RegisterFormData): Promise<RegisterResponse> => {
-    const response = await fetch('http://localhost:4000/auth/register', {
+    const response = await fetch(`${API_URL}/auth/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -28,8 +31,17 @@ export const useRegister = () => {
 
     const result: RegisterResponse = await response.json();
 
-    localStorage.setItem('accessToken', result.accessToken);
-    localStorage.setItem('user', JSON.stringify(result.user));
+    // Armazenar token e usuário nos cookies
+    Cookies.set('accessToken', result.access_token, {
+      expires: 7, // 7 dias
+      secure: process.env.NODE_ENV === 'production', // HTTPS apenas em produção
+      sameSite: 'strict'
+    });
+    Cookies.set('user', JSON.stringify(result.user), {
+      expires: 7,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
 
     setIsAuthenticated(true);
     setUser(result.user);
