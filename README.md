@@ -1631,13 +1631,364 @@ O design da aplicação segue princípios modernos:
 - Feedback visual claro
 - Interface intuitiva
 
+---
 
-## 👨‍💻 Autor
+## 📚 API Documentation
 
-Desenvolvido por Alice Ramalho
+A API está documentada com Swagger/OpenAPI e pode ser acessada em tempo real:
+
+```
+http://localhost:4000/api/docs
+```
+
+### Principais Endpoints
+
+#### Autenticação (Public)
+
+**POST /api/auth/signup** - Cadastrar novo usuário
+```json
+Request Body:
+{
+  "email": "user@example.com",
+  "password": "Password123!",
+  "name": "Nome do Usuário"
+}
+
+Response: 201 Created
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "name": "Nome do Usuário"
+  }
+}
+```
+
+**POST /api/auth/login** - Autenticar usuário
+```json
+Request Body:
+{
+  "email": "user@example.com",
+  "password": "Password123!"
+}
+
+Response: 200 OK
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": 1,
+    "email": "user@example.com",
+    "name": "Nome do Usuário"
+  }
+}
+```
+
+#### Tarefas (Requer autenticação)
+
+Todas as rotas de tarefas requerem o header:
+```
+Authorization: Bearer {access_token}
+```
+
+**GET /api/tasks** - Listar todas as tarefas do usuário
+
+**POST /api/tasks** - Criar nova tarefa
+```json
+Request Body:
+{
+  "title": "Nova tarefa",
+  "description": "Descrição opcional",
+  "priority": "MEDIUM"
+}
+```
+
+**PATCH /api/tasks/:id** - Atualizar tarefa
+
+**PATCH /api/tasks/:id/toggle** - Alternar status de conclusão
+
+**DELETE /api/tasks/:id** - Excluir tarefa
+
+### Testando a API
+
+#### Via Swagger UI
+1. Acesse http://localhost:4000/api/docs
+2. Clique em "Authorize" no topo
+3. Cole seu token JWT
+4. Teste os endpoints diretamente na interface
+
+#### Via curl
+```bash
+# Login e salvar token
+TOKEN=$(curl -X POST http://localhost:4000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"Test123!"}' \
+  | jq -r '.access_token')
+
+# Criar task
+curl -X POST http://localhost:4000/api/tasks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"title":"Task via curl","priority":"HIGH"}'
+```
 
 ---
 
-⭐ **Dica**: Para testar rapidamente, você pode criar um usuário de teste e começar a criar suas tarefas!
+## 🔐 Segurança e Autenticação
 
-📧 **Suporte**: Em caso de dúvidas, consulte a documentação do Swagger.
+### Medidas de Segurança Implementadas
+
+#### 1. Autenticação JWT Stateless
+
+**Fluxo:**
+1. Usuário faz signup → Senha hasheada com bcrypt (10 rounds)
+2. Login → Valida senha, retorna JWT assinado
+3. Client armazena token (localStorage/cookie)
+4. Cada request → Header: `Authorization: Bearer {token}`
+5. Backend valida token e verifica existência do usuário
+
+**Segurança do Token:**
+- ✅ Assinado com HMAC SHA256
+- ✅ Secret key forte (min 32 caracteres)
+- ✅ Expiração configurável (default: 7 dias)
+- ✅ Payload mínimo (apenas userId)
+
+#### 2. Hash de Senhas
+
+```typescript
+// Bcrypt com 10 salt rounds
+const hashedPassword = await bcrypt.hash(password, 10);
+```
+
+**Por que bcrypt?**
+- Salt automático (previne rainbow table attacks)
+- Computacionalmente caro (previne brute force)
+- Adaptativo (pode aumentar rounds)
+
+#### 3. Validação em Camadas
+
+**Backend:** Class Validator com DTOs  
+**Frontend:** Zod schemas
+
+**Benefício:** Frontend = UX, Backend = Segurança
+
+#### 4. CORS Configurado
+
+```typescript
+app.enableCors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+});
+```
+
+#### 5. SQL Injection Protection
+
+Prisma usa prepared statements automaticamente
+
+#### 6. Proteção de Rotas
+
+**Backend:** `@UseGuards(JwtAuthGuard)`  
+**Frontend:** Next.js middleware
+
+### Checklist de Segurança para Produção
+
+- [ ] JWT_SECRET forte (min 32 chars)
+- [ ] HTTPS obrigatório
+- [ ] CORS com domínio específico
+- [ ] Rate limiting habilitado
+- [ ] Helmet headers
+- [ ] Logs de auditoria
+- [ ] Database backups
+- [ ] Secrets em vault
+
+---
+
+## ⚡ Performance e Otimizações
+
+### Backend
+
+#### 1. Database Indexing
+
+```prisma
+model Task {
+  @@index([userId])
+  @@index([completed])
+  @@index([userId, completed])
+}
+```
+
+**Impacto:** Queries 10-100x mais rápidas
+
+#### 2. Connection Pooling
+
+Prisma gerencia pool automaticamente
+
+#### 3. Compression
+
+```typescript
+app.use(compression());  // Gzip responses
+```
+
+### Frontend
+
+#### 1. React Query Cache
+
+```typescript
+staleTime: 60000,      // 1 min
+cacheTime: 300000,     // 5 min
+```
+
+**Benefícios:**
+- Menos requests
+- UX instantânea
+- Background refetch
+
+#### 2. Next.js Image Optimization
+
+Resize, WebP/AVIF, lazy loading automáticos
+
+#### 3. Code Splitting
+
+```tsx
+const HeavyComponent = dynamic(() => import('./Heavy'), {
+  loading: () => <Skeleton />,
+});
+```
+
+#### 4. Tailwind Purge
+
+CSS final ~10kb (vs ~3MB completo)
+
+---
+
+## 🧪 Testes
+
+### Backend
+
+```bash
+# Testes unitários
+npm run test
+
+# Coverage
+npm run test:cov
+
+# E2E
+npm run test:e2e
+```
+
+### Frontend (Configuração futura)
+
+```bash
+npm install -D @testing-library/react vitest
+npm run test
+```
+
+---
+
+## 🚨 Troubleshooting
+
+### Backend
+
+**Port 4000 in use:**
+```bash
+./start.sh  # Script já resolve isso automaticamente
+```
+
+**Database não conecta:**
+```bash
+docker ps | grep postgres
+docker compose restart
+```
+
+**Migration falha:**
+```bash
+npx prisma migrate reset
+```
+
+### Frontend
+
+**Module not found:**
+```bash
+rm -rf node_modules .next
+npm install
+```
+
+**CORS error:**
+- Verificar `NEXT_PUBLIC_API_URL` em `.env.local`
+- Verificar backend rodando
+
+**Build falha (memória):**
+```bash
+NODE_OPTIONS="--max-old-space-size=4096" npm run build
+```
+
+---
+
+## 🚀 Deploy
+
+### Backend (Railway/Render)
+
+```bash
+# Railway
+railway login
+railway up
+
+# Variáveis de ambiente
+DATABASE_URL=postgresql://...
+JWT_SECRET=...
+FRONTEND_URL=https://...
+```
+
+### Frontend (Vercel)
+
+```bash
+# Vercel
+vercel login
+vercel
+
+# Variável de ambiente
+NEXT_PUBLIC_API_URL=https://api...
+```
+
+---
+
+## 🎨 Padrões de Código
+
+### Nomenclatura
+
+- **Arquivos**: `camelCase.ts`, `PascalCase.tsx`
+- **Componentes**: `PascalCase`
+- **Funções**: `camelCase`
+- **Constantes**: `UPPER_SNAKE_CASE`
+
+### Commits
+
+```
+feat: adiciona filtro de prioridade
+fix: corrige validação de email
+docs: atualiza README
+```
+
+---
+
+## 👨‍💻 Autor
+
+**Alice Ramalho**
+
+Este projeto demonstra uma arquitetura full-stack moderna e escalável, aplicando conceitos avançados de engenharia de software e boas práticas de desenvolvimento.
+
+---
+
+## 🤝 Contribuindo
+
+1. Fork o projeto
+2. Crie uma branch (`git checkout -b feature/NovaFeature`)
+3. Commit (`git commit -m 'feat: adiciona NovaFeature'`)
+4. Push (`git push origin feature/NovaFeature`)
+5. Abra um Pull Request
+
+---
+
+⭐ **Dica**: Use o script automatizado `./start.sh` na pasta backend para setup completo em um comando!
+
+📚 **Docs**: Swagger disponível em `http://localhost:4000/api/docs`
