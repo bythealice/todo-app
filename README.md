@@ -1220,86 +1220,67 @@ cp .env.local.example .env.local
 
 ## 🚀 Como Executar
 
-### Modo Desenvolvimento (Padrão)
+### Modo Desenvolvimento
 
-#### Usando Docker Compose (Recomendado)
+#### Backend - Script Automatizado (Recomendado)
 
-**1. Inicie todos os serviços:**
-
-```bash
-# Na raiz do projeto backend
-cd backend
-
-# Inicia PostgreSQL em background
-docker-compose up -d
-
-# Verificar logs (opcional)
-docker-compose logs -f
-```
-
-**Comandos úteis do Docker Compose:**
-
-```bash
-# Ver status dos containers
-docker-compose ps
-
-# Parar containers
-docker-compose stop
-
-# Parar e remover containers (mantém dados)
-docker-compose down
-
-# Parar e remover TUDO (apaga dados do banco)
-docker-compose down -v
-
-# Reiniciar serviços
-docker-compose restart
-
-# Ver logs em tempo real
-docker-compose logs -f postgres
-```
-
-**2. Inicie o Backend (Terminal 1):**
+O backend possui um script de inicialização automatizado que configura todo o ambiente:
 
 ```bash
 cd backend
+chmod +x start.sh  # Torna o script executável (apenas primeira vez)
+./start.sh
+```
+
+**O que o script `start.sh` faz:**
+
+1. **Verifica porta 4000**: Mata qualquer processo rodando na porta 4000 para evitar conflitos
+2. **Inicia PostgreSQL**: Sobe o container Docker do banco de dados com `docker compose up -d`
+3. **Aguarda inicialização**: Sleep de 3 segundos para garantir que o PostgreSQL está pronto
+4. **Executa migrations**: Roda `prisma migrate deploy` para criar/atualizar tabelas
+5. **Gera Prisma Client**: Executa `prisma generate` para gerar os types TypeScript
+6. **Inicia servidor**: Roda `npm run start:dev` em modo watch (hot reload)
+
+**Vantagens do script:**
+- ✅ Setup completo em um único comando
+- ✅ Idempotente: pode rodar múltiplas vezes sem problemas
+- ✅ Limpa processos antigos automaticamente
+- ✅ Garante ordem correta de inicialização
+
+**Logs do script:**
+```
+🔍 Verificando processos Nest rodando...
+🐘 Iniciando PostgreSQL no Docker...
+⏳ Aguardando PostgreSQL iniciar...
+🔄 Executando migrations do Prisma...
+✅ Gerando Prisma Client...
+🚀 Iniciando servidor NestJS...
+[Nest] INFO Application is running on: http://localhost:4000
+```
+
+#### Backend - Manual (Alternativa)
+
+Se preferir rodar manualmente:
+
+```bash
+cd backend
+
+# 1. Iniciar PostgreSQL
+docker compose up -d
+
+# 2. Executar migrations
+npx prisma migrate dev
+
+# 3. Iniciar servidor
 npm run start:dev
-```
-
-**O que acontece:**
-- NestJS inicia em modo watch (hot reload)
-- Cada mudança nos arquivos `.ts` recompila automaticamente
-- Swagger UI disponível em `/api/docs`
-- Porta padrão: `4000`
-
-**Logs esperados:**
-```
-[Nest] INFO  [NestFactory] Starting Nest application...
-[Nest] INFO  [InstanceLoader] PrismaModule dependencies initialized
-[Nest] INFO  [InstanceLoader] AuthModule dependencies initialized
-[Nest] INFO  [InstanceLoader] TasksModule dependencies initialized
-[Nest] INFO  [RoutesResolver] AuthController {/api/auth}:
-[Nest] INFO  [RouterExplorer] Mapped {/api/auth/signup, POST} route
-[Nest] INFO  [RouterExplorer] Mapped {/api/auth/login, POST} route
-[Nest] INFO  [RoutesResolver] TasksController {/api/tasks}:
-[Nest] INFO  [RouterExplorer] Mapped {/api/tasks, GET} route
-[Nest] INFO  [RouterExplorer] Mapped {/api/tasks, POST} route
-[Nest] INFO  [NestApplication] Nest application successfully started
-[Nest] INFO  Application is running on: http://localhost:4000
 ```
 
 **Troubleshooting Backend:**
 
 - **Erro "port 4000 already in use":**
   ```bash
-  # Encontrar processo usando a porta
-  lsof -ti:4000
-  
-  # Matar processo
-  kill -9 $(lsof -ti:4000)
-  
-  # OU mudar porta no .env
-  PORT=4001
+  # O script start.sh já resolve isso, mas manualmente:
+  lsof -ti:4000 | xargs kill -9
   ```
 
 - **Erro "Can't reach database server":**
@@ -1308,66 +1289,48 @@ npm run start:dev
   docker ps | grep postgres
   
   # Reiniciar container
-  docker-compose restart postgres
-  
-  # Verificar logs
-  docker-compose logs postgres
+  docker compose restart
   ```
 
 - **Erro de migration:**
   ```bash
-  # Resetar banco (APAGA TUDO)
+  # Resetar banco (APAGA TODOS OS DADOS)
   npx prisma migrate reset
-  
-  # Aplicar migrations novamente
-  npx prisma migrate dev
   ```
 
-**3. Inicie o Frontend (Terminal 2):**
+#### Frontend
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-**O que acontece:**
-- Next.js inicia em modo desenvolvimento
-- Fast Refresh habilitado (hot reload sem perder estado)
-- Porta padrão: `3000`
-
-**Logs esperados:**
-```
-  ▲ Next.js 15.0.0
-  - Local:        http://localhost:3000
-  - Network:      http://192.168.1.x:3000
-
- ✓ Ready in 2.5s
- ○ Compiling / ...
- ✓ Compiled / in 1.2s
-```
+O frontend estará rodando em `http://localhost:3000`
 
 **Troubleshooting Frontend:**
 
 - **Erro "port 3000 already in use":**
   ```bash
-  kill -9 $(lsof -ti:3000)
-  
-  # OU iniciar em outra porta
-  PORT=3001 npm run dev
+  lsof -ti:3000 | xargs kill -9
   ```
 
 - **Erro "Failed to fetch" nas chamadas API:**
   - Verificar se backend está rodando em `http://localhost:4000`
   - Verificar `NEXT_PUBLIC_API_URL` no `.env.local`
-  - Abrir DevTools → Network para ver request falhando
 
-- **TypeScript errors:**
-  ```bash
-  # Limpar cache e reinstalar
-  rm -rf .next node_modules
-  npm install
-  npm run dev
-  ```
+---
+
+### URLs Importantes
+
+Após iniciar os servidores:
+
+| Serviço | URL | Descrição |
+|---------|----:|-----------|
+| **Frontend** | http://localhost:3000 | Interface do usuário |
+| **Dashboard** | http://localhost:3000/dashboard | Painel principal (autenticado) |
+| **Backend API** | http://localhost:4000/api | Base URL da API REST |
+| **Swagger Docs** | http://localhost:4000/api/docs | Documentação interativa da API |
+| **Prisma Studio** | http://localhost:5555 | Interface visual do banco (`npx prisma studio`) |
 
 ---
 
@@ -1378,20 +1341,15 @@ npm run dev
 ```bash
 cd backend
 
-# 1. Build da aplicação
+# Build da aplicação
 npm run build
 
-# Isso compila TypeScript → JavaScript em /dist
-# Otimizações de produção aplicadas
-
-# 2. Executar em produção
+# Executar em produção
 npm run start:prod
 
 # OU com PM2 (process manager)
 npm install -g pm2
 pm2 start dist/main.js --name todo-api
-pm2 logs todo-api
-pm2 restart todo-api
 ```
 
 **Variáveis de ambiente para produção:**
@@ -1404,284 +1362,44 @@ PORT=4000
 FRONTEND_URL="https://seu-dominio.com"
 ```
 
-**Considerações de produção:**
-- ✅ Use PostgreSQL gerenciado (RDS, Supabase, Railway)
-- ✅ JWT_SECRET diferente e forte
-- ✅ CORS configurado com domínio específico
-- ✅ HTTPS obrigatório
-- ✅ Rate limiting habilitado
-- ✅ Logs estruturados (Winston, Pino)
-- ✅ Health checks configurados
-
 #### Frontend - Build e Deploy
 
 ```bash
 cd frontend
 
-# 1. Build estático otimizado
+# Build estático otimizado
 npm run build
 
-# Isso gera:
-# - Bundle JavaScript minificado
-# - HTML estático pre-renderizado
-# - Otimização de imagens
-# - Tree-shaking de código não usado
-
-# 2. Testar build localmente
+# Testar build localmente
 npm run start
-
-# Servidor produção local na porta 3000
-```
-
-**Análise do bundle:**
-
-```bash
-# Analisar tamanho do bundle
-npm run build
-
-# Saída mostra:
-# Route (app)              Size      First Load JS
-# ┌ ○ /                    1.2 kB         85.3 kB
-# ├ ○ /dashboard           15.4 kB        99.5 kB
-# └ ○ /login               8.7 kB         92.8 kB
 ```
 
 **Deploy recomendado:**
-- **Vercel** (recomendado para Next.js):
-  ```bash
-  npm install -g vercel
-  vercel
-  ```
-  - Deploy automático do Git
-  - Edge functions globais
-  - Preview deployments para PRs
-
-- **Netlify:**
-  ```bash
-  npm install -g netlify-cli
-  netlify deploy --prod
-  ```
-
-- **Docker:**
-  ```dockerfile
-  # frontend/Dockerfile
-  FROM node:18-alpine AS builder
-  WORKDIR /app
-  COPY package*.json ./
-  RUN npm ci
-  COPY . .
-  RUN npm run build
-
-  FROM node:18-alpine
-  WORKDIR /app
-  COPY --from=builder /app/.next ./.next
-  COPY --from=builder /app/public ./public
-  COPY --from=builder /app/package*.json ./
-  RUN npm ci --only=production
-  EXPOSE 3000
-  CMD ["npm", "start"]
-  ```
-
-**Variáveis de ambiente para produção:**
-
-```env
-NEXT_PUBLIC_API_URL=https://api.seu-dominio.com/api
-NODE_ENV=production
-```
-
----
-
-### Docker Compose Full Stack (Avançado)
-
-Para rodar frontend + backend + banco em containers:
-
-**Criar `docker-compose.yml` na raiz do projeto:**
-
-```yaml
-version: '3.8'
-
-services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: todo-postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: todo_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: todo-backend
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/todo_db"
-      JWT_SECRET: "your-production-secret-here"
-      PORT: 4000
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    command: npm run start:dev
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: todo-frontend
-    depends_on:
-      - backend
-    environment:
-      NEXT_PUBLIC_API_URL: http://localhost:4000/api
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    command: npm run dev
-
-volumes:
-  postgres_data:
-```
-
-**Executar:**
-
-```bash
-# Na raiz do projeto
-docker-compose up
-
-# Em background
-docker-compose up -d
-
-# Ver logs
-docker-compose logs -f backend
-docker-compose logs -f frontend
-
-# Parar tudo
-docker-compose down
-```
-
----
-
-### URLs e Endpoints Importantes
-
-Após iniciar os servidores, você tem acesso a:
-
-| Serviço | URL | Descrição |
-|---------|-----|-----------|
-| **Frontend** | http://localhost:3000 | Interface do usuário |
-| **Landing Page** | http://localhost:3000/ | Página inicial pública |
-| **Login** | http://localhost:3000/login | Autenticação de usuários |
-| **Register** | http://localhost:3000/register | Cadastro de novos usuários |
-| **Dashboard** | http://localhost:3000/dashboard | Painel principal (autenticado) |
-| **Backend API** | http://localhost:4000/api | Base URL da API REST |
-| **Swagger Docs** | http://localhost:4000/api/docs | Documentação interativa da API |
-| **Health Check** | http://localhost:4000/api/health | Status da aplicação |
-| **Prisma Studio** | http://localhost:5555 | Interface visual do banco |
-
-**Testar API com curl:**
-
-```bash
-# 1. Criar usuário
-curl -X POST http://localhost:4000/api/auth/signup \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"Test123!","name":"Test User"}'
-
-# 2. Login (retorna JWT token)
-curl -X POST http://localhost:4000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"Test123!"}'
-
-# Copie o "access_token" da resposta
-
-# 3. Criar task (autenticado)
-curl -X POST http://localhost:4000/api/tasks \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer SEU_TOKEN_AQUI" \
-  -d '{"title":"Minha primeira task","priority":"HIGH"}'
-
-# 4. Listar tasks
-curl http://localhost:4000/api/tasks \
-  -H "Authorization: Bearer SEU_TOKEN_AQUI"
-```
+- **Vercel** (recomendado para Next.js): `vercel`
+- **Netlify**: `netlify deploy --prod`
+- **Docker**: Use o Dockerfile incluído
 
 ---
 
 ### Scripts Disponíveis
 
-#### Backend (`backend/package.json`)
+#### Backend
 
 ```bash
-# Desenvolvimento
-npm run start          # Inicia sem watch
-npm run start:dev      # Inicia com hot reload (recomendado)
-npm run start:debug    # Inicia com debugger (porta 9229)
-
-# Build e Produção
-npm run build          # Compila TypeScript → JavaScript
+npm run start:dev      # Desenvolvimento com hot reload
+npm run build          # Build para produção
 npm run start:prod     # Executa versão compilada
-
-# Prisma
 npm run prisma:studio  # Abre Prisma Studio
-npm run prisma:migrate # Cria nova migration
-npm run prisma:generate # Gera Prisma Client
-npm run prisma:reset   # Reset banco (CUIDADO: apaga tudo)
-
-# Testes
 npm run test           # Testes unitários
-npm run test:watch     # Testes em watch mode
-npm run test:cov       # Testes com coverage
 npm run test:e2e       # Testes end-to-end
-
-# Lint
 npm run lint           # ESLint check
-npm run format         # Prettier format
 ```
 
-#### Frontend (`frontend/package.json`)
+#### Frontend
 
 ```bash
-# Desenvolvimento
-npm run dev            # Inicia Next.js dev server
-
-# Build e Produção
-npm run build          # Build otimizado para produção
-npm run start          # Inicia servidor produção
-npm run export         # Gera static export (sem SSR)
-
-# Lint
-npm run lint           # Next.js + ESLint check
-npm run lint:fix       # Fix automático
-
-# Type Check
-npm run type-check     # TypeScript check sem emitir arquivos
-```
-
-**Scripts úteis customizados:**
-
-```bash
-# Backend - Seed database (criar dados de teste)
-npm run seed
-
-# Backend - Reset completo
-npm run prisma:reset && npm run seed
-
-# Frontend - Limpar cache
-rm -rf .next && npm run dev
+npm run dev            # Desenvolvimento
+npm run build          # Build para produção
 ```
 
 ## 📁 Estrutura do Projeto Detalhada
