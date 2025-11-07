@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Cookies from 'js-cookie';
 import type { LoginFormData, LoginResponse } from '@/validations/loginSchema';
+import { saveAuthData, clearAuth } from '@/utils/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
@@ -27,17 +27,7 @@ export const useAuth = () => {
 
     const result: LoginResponse = await response.json();
 
-    // Armazenar token e usuário nos cookies
-    Cookies.set('accessToken', result.access_token, {
-      expires: 7, // 7 dias
-      secure: process.env.NODE_ENV === 'production', // HTTPS apenas em produção
-      sameSite: 'strict'
-    });
-    Cookies.set('user', JSON.stringify(result.user), {
-      expires: 7,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
-    });
+    saveAuthData(result.access_token, result.user);
 
     setIsAuthenticated(true);
     setUser(result.user);
@@ -46,8 +36,7 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    Cookies.remove('accessToken');
-    Cookies.remove('user');
+    clearAuth();
     setIsAuthenticated(false);
     setUser(null);
   };

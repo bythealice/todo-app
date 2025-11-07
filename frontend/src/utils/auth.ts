@@ -1,15 +1,19 @@
 import Cookies from 'js-cookie';
 
-/**
- * Recupera o token de autenticação dos cookies
- */
+const COOKIE_OPTIONS = {
+  expires: 7,
+  sameSite: 'strict' as const
+};
+
+export const saveAuthData = (accessToken: string, user: any) => {
+  Cookies.set('accessToken', accessToken, COOKIE_OPTIONS);
+  Cookies.set('user', JSON.stringify(user), COOKIE_OPTIONS);
+};
+
 export const getAccessToken = (): string | undefined => {
   return Cookies.get('accessToken');
 };
 
-/**
- * Recupera as informações do usuário dos cookies
- */
 export const getUser = () => {
   const userCookie = Cookies.get('user');
   if (!userCookie) return null;
@@ -21,16 +25,10 @@ export const getUser = () => {
   }
 };
 
-/**
- * Verifica se o usuário está autenticado
- */
 export const isAuthenticated = (): boolean => {
   return !!getAccessToken();
 };
 
-/**
- * Remove todos os dados de autenticação
- */
 export const clearAuth = () => {
   Cookies.remove('accessToken');
   Cookies.remove('user');

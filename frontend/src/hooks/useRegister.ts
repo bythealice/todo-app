@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Cookies from 'js-cookie';
 import type { RegisterFormData, RegisterResponse } from '@/validations/registerSchema';
+import { saveAuthData } from '@/utils/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
@@ -32,16 +32,7 @@ export const useRegister = () => {
     const result: RegisterResponse = await response.json();
 
     // Armazenar token e usuário nos cookies
-    Cookies.set('accessToken', result.access_token, {
-      expires: 7, // 7 dias
-      secure: process.env.NODE_ENV === 'production', // HTTPS apenas em produção
-      sameSite: 'strict'
-    });
-    Cookies.set('user', JSON.stringify(result.user), {
-      expires: 7,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
-    });
+    saveAuthData(result.access_token, result.user);
 
     setIsAuthenticated(true);
     setUser(result.user);
