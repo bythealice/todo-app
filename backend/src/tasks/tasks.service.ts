@@ -13,6 +13,8 @@ export class TasksService {
         title: createTaskDto.title,
         description: createTaskDto.description,
         completed: createTaskDto.completed ?? false,
+        priority: createTaskDto.priority ?? 'low',
+        status: createTaskDto.status ?? 'pending',
         userId,
       },
     });
