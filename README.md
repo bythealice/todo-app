@@ -1979,16 +1979,6 @@ Este projeto demonstra uma arquitetura full-stack moderna e escalável, aplicand
 
 ---
 
-## 🤝 Contribuindo
-
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/NovaFeature`)
-3. Commit (`git commit -m 'feat: adiciona NovaFeature'`)
-4. Push (`git push origin feature/NovaFeature`)
-5. Abra um Pull Request
-
----
-
 ⭐ **Dica**: Use o script automatizado `./start.sh` na pasta backend para setup completo em um comando!
 
 📚 **Docs**: Swagger disponível em `http://localhost:4000/api/docs`
